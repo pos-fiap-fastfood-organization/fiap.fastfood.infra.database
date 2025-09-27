@@ -25,3 +25,5 @@ jobs:
           echo "TF_VAR_atlas_private_key = $TF_VAR_atlas_private_key"
           echo "TF_VAR_atlas_org_id = $TF_VAR_atlas_org_id"
           echo "TF_VAR_fastfood_user_password = $TF_VAR_fastfood_user_password"
+      - name: List all secrets (for debug)
+        run: printenv | grep TF_VAR
