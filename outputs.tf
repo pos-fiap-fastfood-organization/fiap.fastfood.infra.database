@@ -1,15 +1,12 @@
-output "docdb_endpoint" {
-  value = aws_docdb_cluster.docdb_cluster.endpoint
+output "mongodb_connection_string" {
+  description = "Connection string padrão do cluster"
+  value       = mongodbatlas_cluster.fastfood_cluster.connection_strings[0].standard
 }
 
-output "docdb_port" {
-  value = aws_docdb_cluster.docdb_cluster.port
+output "mongodb_user" {
+  value = mongodbatlas_database_user.fastfood_user.username
 }
 
-output "docdb_user" {
-  value = aws_docdb_cluster.docdb_cluster.master_username
-}
-
-output "docdb_database" {
-  value = aws_docdb_cluster.docdb_cluster.database_name
+output "mongodb_database" {
+  value = "fiap_fastfood"
 }

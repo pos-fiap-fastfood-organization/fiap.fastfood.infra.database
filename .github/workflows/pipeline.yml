@@ -1,18 +1,19 @@
-name: Pipeline
+name: Terraform Apply - MongoDB Atlas
 
 on:
   push:
     branches:
       - main
+  pull_request:
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
-
     env:
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_TERRAFORM }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_TERRAFORM }}
+      TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
+      TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
+      TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
+      TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -36,3 +37,7 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
+
+      - name: Terraform Outputs
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform output
