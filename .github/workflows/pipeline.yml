@@ -1,4 +1,4 @@
-name: Terraform Variables Debug - MongoDB Atlas
+name: Terraform Apply - MongoDB Atlas
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  terraform-debug:
+  terraform:
     runs-on: ubuntu-latest
     env:
       TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
@@ -19,11 +19,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Print Terraform variables
-        run: |
-          echo "TF_VAR_atlas_public_key = $TF_VAR_atlas_public_key"
-          echo "TF_VAR_atlas_private_key = $TF_VAR_atlas_private_key"
-          echo "TF_VAR_atlas_org_id = $TF_VAR_atlas_org_id"
-          echo "TF_VAR_fastfood_user_password = $TF_VAR_fastfood_user_password"
-      - name: List all secrets (for debug)
-        run: printenv | grep TF_VAR
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan -input=false
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
+
+      - name: Terraform Outputs
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform output
