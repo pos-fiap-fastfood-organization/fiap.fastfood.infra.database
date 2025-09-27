@@ -10,15 +10,24 @@ resource "mongodbatlas_project" "project" {
 }
 
 # Cluster MongoDB
-resource "mongodbatlas_cluster" "fastfood_cluster" {
-  project_id                  = mongodbatlas_project.project.id
-  name                        = "fastfood-cluster"
-  provider_name               = "AWS"
-  backing_provider_name       = "AWS"
-  provider_region_name        = "US_EAST_1"
-  provider_instance_size_name = "M0"
-  mongo_db_major_version      = "7.0"
+resource "mongodbatlas_advanced_cluster" "fastfood_cluster" {
+  project_id   = mongodbatlas_project.project.id
+  name         = "fastfood-cluster"
+  cluster_type = "REPLICASET"
+
+  replication_specs {
+    region_configs {
+      electable_specs {
+        instance_size = "M0"
+      }
+      provider_name         = "TENANT"
+      backing_provider_name = "AWS"
+      region_name           = "US_EAST_1"
+      priority              = 7
+    }
+  }
 }
+
 
 # Usuário do banco
 resource "mongodbatlas_database_user" "fastfood_user" {
