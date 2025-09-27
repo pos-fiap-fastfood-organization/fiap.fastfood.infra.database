@@ -24,7 +24,7 @@ resource "mongodbatlas_cluster" "fastfood_cluster" {
 resource "mongodbatlas_database_user" "fastfood_user" {
   project_id   = mongodbatlas_project.project.id
   username     = "fastfood_user"
-  password     = "Fastfood2025"
+  password     = var.fastfood_user_password
   auth_database_name = "admin"
 
   roles {

@@ -19,3 +19,9 @@ variable "atlas_project_name" {
   type        = string
   default     = "fiap-fastfood"
 }
+
+variable "fastfood_user_password" {
+  description = "Senha do usuário do banco MongoDB Atlas"
+  type        = string
+  sensitive   = true
+}

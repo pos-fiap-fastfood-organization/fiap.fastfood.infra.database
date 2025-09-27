@@ -21,8 +21,10 @@ jobs:
 
       - name: Terraform Init
         env:
-          MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
-          MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
+          TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
+          TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
+          TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
+          TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
         run: terraform init
 
       - name: Terraform Plan
@@ -31,6 +33,7 @@ jobs:
           TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
           TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
           TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
+          TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
         run: terraform plan -input=false
 
       - name: Terraform Apply
@@ -39,4 +42,5 @@ jobs:
           TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
           TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
           TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
+          TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
         run: terraform apply -auto-approve -input=false
