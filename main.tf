@@ -15,8 +15,8 @@ resource "mongodbatlas_cluster" "fastfood_cluster" {
   name                        = "fastfood-cluster"
   provider_name               = "AWS"
   backing_provider_name       = "AWS"
-  provider_region_name        = "US_EAST_2"
-  provider_instance_size_name = "M0" # Free tier
+  provider_region_name        = "US_EAST_1"
+  provider_instance_size_name = "M0"
   mongo_db_major_version      = "7.0"
 }
 
