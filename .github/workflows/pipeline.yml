@@ -1,4 +1,4 @@
-name: Terraform Apply - MongoDB Atlas
+name: Terraform Variables Debug - MongoDB Atlas
 
 on:
   push:
@@ -7,81 +7,21 @@ on:
   pull_request:
 
 jobs:
-  terraform:
+  terraform-debug:
     runs-on: ubuntu-latest
+    env:
+      TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
+      TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
+      TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
+      TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
 
     steps:
-      # 1️⃣ Checkout do repositório
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Debug para verificar se as variáveis estão sendo passadas corretamente
-      - name: Debug Terraform Variables
+      - name: Print Terraform variables
         run: |
-          echo "TF_VAR_atlas_public_key is set: ${TF_VAR_atlas_public_key:+yes}"
-          echo "TF_VAR_atlas_private_key is set: ${TF_VAR_atlas_private_key:+yes}"
-          echo "TF_VAR_atlas_org_id is set: ${TF_VAR_atlas_org_id:+yes}"
-          echo "TF_VAR_fastfood_user_password is set: ${TF_VAR_fastfood_user_password:+yes}"
-        env:
-          TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
-          TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
-          TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
-          TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
-
-      # 3️⃣ Setup Terraform
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.7.5
-
-      # 4️⃣ Terraform Init
-      - name: Terraform Init
-        run: terraform init
-        env:
-          TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
-          TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
-          TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
-          TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
-
-      # 5️⃣ Terraform Format Check
-      - name: Terraform Format Check
-        run: terraform fmt -check
-
-      # 6️⃣ Terraform Validate
-      - name: Terraform Validate
-        run: terraform validate
-        env:
-          TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
-          TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
-          TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
-          TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
-
-      # 7️⃣ Terraform Plan (somente PR)
-      - name: Terraform Plan
-        if: github.event_name == 'pull_request'
-        run: terraform plan -input=false
-        env:
-          TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
-          TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
-          TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
-          TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
-
-      # 8️⃣ Terraform Apply (somente push na branch main)
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
-        env:
-          TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
-          TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
-          TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
-          TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
-
-      # 9️⃣ Terraform Outputs
-      - name: Terraform Outputs
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform output
-        env:
-          TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
-          TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
-          TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
-          TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
+          echo "TF_VAR_atlas_public_key = $TF_VAR_atlas_public_key"
+          echo "TF_VAR_atlas_private_key = $TF_VAR_atlas_private_key"
+          echo "TF_VAR_atlas_org_id = $TF_VAR_atlas_org_id"
+          echo "TF_VAR_fastfood_user_password = $TF_VAR_fastfood_user_password"
