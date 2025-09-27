@@ -16,6 +16,17 @@ jobs:
       TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
 
     steps:
+      - name: Debug Terraform Variables
+        run: |
+          echo "TF_VAR_atlas_public_key is set: ${TF_VAR_atlas_public_key:+yes}"
+          echo "TF_VAR_atlas_private_key is set: ${TF_VAR_atlas_private_key:+yes}"
+          echo "TF_VAR_atlas_org_id is set: ${TF_VAR_atlas_org_id:+yes}"
+          echo "TF_VAR_fastfood_user_password is set: ${TF_VAR_fastfood_user_password:+yes}"
+        env:
+          TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
+          TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
+          TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
+          TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}    
       - name: Checkout repository
         uses: actions/checkout@v4
 
