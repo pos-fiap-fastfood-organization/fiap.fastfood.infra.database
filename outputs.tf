@@ -1,6 +1,6 @@
 output "mongodb_connection_string" {
   description = "Connection string padrão do cluster"
-  value       = mongodbatlas_cluster.fastfood_cluster.connection_strings[0].standard
+  value       = mongodbatlas_advanced_cluster.fastfood_cluster.connection_strings[0].standard
 }
 
 output "mongodb_user" {
