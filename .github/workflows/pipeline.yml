@@ -19,6 +19,7 @@ jobs:
         with:
           terraform_version: 1.7.5
 
+      # ⚡ Terraform Init precisa das variáveis que o provider MongoDB Atlas lê diretamente
       - name: Terraform Init
         env:
           MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
@@ -36,26 +37,26 @@ jobs:
       - name: Terraform Plan
         if: github.event_name == 'pull_request'
         env:
-          TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
-          TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
-          TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
+          MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
+          MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
+          MONGODB_ATLAS_ORG_ID: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
           TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
         run: terraform plan -input=false
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
-          TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
-          TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
-          TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
+          MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
+          MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
+          MONGODB_ATLAS_ORG_ID: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
           TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
         run: terraform apply -auto-approve -input=false
 
       - name: Terraform Outputs
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
-          TF_VAR_atlas_public_key: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
-          TF_VAR_atlas_private_key: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
-          TF_VAR_atlas_org_id: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
+          MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGO_ATLAS_PUBLIC_KEY }}
+          MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGO_ATLAS_PRIVATE_KEY }}
+          MONGODB_ATLAS_ORG_ID: ${{ secrets.ORGANIZATION_MONGO_ATLAS_ID }}
           TF_VAR_fastfood_user_password: ${{ secrets.MONGO_DATABASE_ATLAS_FASTFOOD_PASSWORD }}
         run: terraform output
