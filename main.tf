@@ -40,6 +40,11 @@ resource "mongodbatlas_database_user" "fastfood_user" {
     role_name     = "readWrite"
     database_name = "fiap_fastfood"
   }
+
+  roles {
+    role_name     = "dbAdmin"
+    database_name = "fiap_fastfood"
+  }
 }
 
 # Liberar acesso a máquina (IP público) 
