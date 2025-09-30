@@ -36,7 +36,7 @@ jobs:
       - name: Terraform Plan
         if: github.event_name == 'pull_request'
         run: terraform plan -input=false
-
+      
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
@@ -44,3 +44,28 @@ jobs:
       - name: Terraform Outputs
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform output
+
+      - name: Export Terraform Outputs
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        id: tf-outputs
+        run: |
+          echo "MONGODB_URI=$(terraform output -raw mongodb_connection_string)" >> $GITHUB_ENV
+          echo "MONGODB_USER=$(terraform output -raw mongodb_user)" >> $GITHUB_ENV
+          echo "MONGODB_DATABASE=$(terraform output -raw mongodb_database)" >> $GITHUB_ENV
+
+      - name: Install Mongo Shell
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mongodb-clients
+
+      - name: Create seed file
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          echo '${{ secrets.MENU_SEED_JSON }}' > menu.json
+          echo "db = connect('$MONGODB_URI');" > seed.js
+          echo "db.$MONGODB_DATABASE.insertMany($(cat menu.json));" >> seed.js
+
+      - name: Seed MongoDB
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: mongo "$MONGODB_URI" -u "$MONGODB_USER" -p "${TF_VAR_fastfood_user_password}" --authenticationDatabase "admin" seed.js
