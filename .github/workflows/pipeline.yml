@@ -61,13 +61,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mongodb-mongosh
 
-      - name: Create seed file
+      - name: Check if seed already exists
+        id: check-seed
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          echo '${{ secrets.MENU_SEED_JSON }}' > menu.json
-          echo "db = connect('$MONGODB_URI');" > seed.js
-          echo "db.$MONGODB_DATABASE.insertMany($(cat menu.json));" >> seed.js
+          mongosh "$MONGODB_URI" \
+            --username "$MONGODB_USER" \
+            --password "${TF_VAR_fastfood_user_password}" \
+            --authenticationDatabase "admin" \
+            --eval "quit(db.getSiblingDB('$MONGODB_DATABASE').menu.countDocuments() > 0 ? 0 : 1)"
+
+      - name: Create seed file
+        if: steps.check-seed.outcome == 'failure'
+        run: |
+          echo '${{ secrets.MENU_SEED_JSON }}' > seed.js
 
       - name: Seed MongoDB
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: steps.check-seed.outcome == 'failure'
         run: mongosh "$MONGODB_URI" --username "$MONGODB_USER" --password "${TF_VAR_fastfood_user_password}" --authenticationDatabase "admin" seed.js
