@@ -85,11 +85,13 @@ jobs:
       - name: Create seed file
         if: steps.check-seed.outputs.seed_exists == 'false'
         run: |
-          # Monta seed.js: wrapper + conteúdo do secret
-          echo "db = connect('$MONGODB_URI');" > seed.js
-          echo "db.getSiblingDB('$MONGODB_DATABASE').menu.insertMany(" >> seed.js
-          printf '%s\n' "${{ secrets.MENU_SEED_JSON }}" >> seed.js
-          echo ");" >> seed.js
+          cat > seed.js <<'EOF'
+          db = connect("$MONGODB_URI", "$MONGODB_USER", "${TF_VAR_fastfood_user_password}");
+          db = db.getSiblingDB("$MONGODB_DATABASE");
+          db.menu.insertMany(
+          ${{ secrets.MENU_SEED_JSON }}
+          );
+          EOF
 
       - name: Seed MongoDB
         if: steps.check-seed.outputs.seed_exists == 'false'
@@ -97,5 +99,4 @@ jobs:
           mongosh "$MONGODB_URI" \
             --username "$MONGODB_USER" \
             --password "${TF_VAR_fastfood_user_password}" \
-            --authenticationDatabase "admin" \
-            seed.js
+            --authenticationDatabase "admin" seed.js
