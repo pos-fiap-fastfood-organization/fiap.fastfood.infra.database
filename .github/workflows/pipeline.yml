@@ -85,9 +85,8 @@ jobs:
       - name: Create seed file
         if: steps.check-seed.outputs.seed_exists == 'false'
         run: |
-          cat > seed.js <<'EOF'
-          db = connect("$MONGODB_URI", "$MONGODB_USER", "${TF_VAR_fastfood_user_password}");
-          db = db.getSiblingDB("$MONGODB_DATABASE");
+          cat > seed.js <<EOF
+          db = db.getSiblingDB("${MONGODB_DATABASE}");
           db.menu.insertMany(
           ${{ secrets.MENU_SEED_JSON }}
           );
@@ -99,4 +98,5 @@ jobs:
           mongosh "$MONGODB_URI" \
             --username "$MONGODB_USER" \
             --password "${TF_VAR_fastfood_user_password}" \
-            --authenticationDatabase "admin" seed.js
+            --authenticationDatabase "admin" \
+            seed.js
