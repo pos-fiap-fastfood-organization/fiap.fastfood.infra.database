@@ -65,17 +65,37 @@ jobs:
         id: check-seed
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
+          COUNT=$(mongosh "$MONGODB_URI" \
+            --username "$MONGODB_USER" \
+            --password "${TF_VAR_fastfood_user_password}" \
+            --authenticationDatabase "admin" \
+            --quiet \
+            --eval "db.getSiblingDB('${MONGODB_DATABASE}').menu.countDocuments()")
+
+          COUNT="$(echo \"$COUNT\" | tr -d '\r' | xargs || echo 0)"
+
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+
+          if [ -n "$COUNT" ] && [ "$COUNT" -gt 0 ]; then
+            echo "seed_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "seed_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create seed file
+        if: steps.check-seed.outputs.seed_exists == 'false'
+        run: |
+          # Monta seed.js: wrapper + conteúdo do secret
+          echo "db = connect('$MONGODB_URI');" > seed.js
+          echo "db.getSiblingDB('$MONGODB_DATABASE').menu.insertMany(" >> seed.js
+          printf '%s\n' "${{ secrets.MENU_SEED_JSON }}" >> seed.js
+          echo ");" >> seed.js
+
+      - name: Seed MongoDB
+        if: steps.check-seed.outputs.seed_exists == 'false'
+        run: |
           mongosh "$MONGODB_URI" \
             --username "$MONGODB_USER" \
             --password "${TF_VAR_fastfood_user_password}" \
             --authenticationDatabase "admin" \
-            --eval "quit(db.getSiblingDB('$MONGODB_DATABASE').menu.countDocuments() > 0 ? 0 : 1)"
-
-      - name: Create seed file
-        if: steps.check-seed.outcome == 'failure'
-        run: |
-          echo '${{ secrets.MENU_SEED_JSON }}' > seed.js
-
-      - name: Seed MongoDB
-        if: steps.check-seed.outcome == 'failure'
-        run: mongosh "$MONGODB_URI" --username "$MONGODB_USER" --password "${TF_VAR_fastfood_user_password}" --authenticationDatabase "admin" seed.js
+            seed.js
