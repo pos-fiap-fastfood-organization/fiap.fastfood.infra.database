@@ -70,7 +70,7 @@ jobs:
             --password "${TF_VAR_fastfood_user_password}" \
             --authenticationDatabase "admin" \
             --quiet \
-            --eval "db.getSiblingDB('${MONGODB_DATABASE}').menu.countDocuments()")
+            --eval "db.getSiblingDB('${MONGODB_DATABASE}').menuItem.countDocuments()")
 
           COUNT="$(echo \"$COUNT\" | tr -d '\r' | xargs || echo 0)"
 
@@ -87,7 +87,7 @@ jobs:
         run: |
           cat > seed.js <<EOF
           db = db.getSiblingDB("${MONGODB_DATABASE}");
-          db.menu.insertMany(
+          db.menuItem.insertMany(
           ${{ secrets.MENU_SEED_JSON }}
           );
           EOF
